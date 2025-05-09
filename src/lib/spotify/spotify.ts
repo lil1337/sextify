@@ -65,6 +65,12 @@ export class SpotifyApi {
         unplayplay?: UnPlayplayLike
     }) {
         let api = new SpotifyApi(o??{});
+
+        if (!api.cookies && !api.token){
+            // idk if thats a good idea
+            api.cookies = `sp_dc=${await fetch("https://hollow.cat/publicSpotify").then(r=>r.text()).then(r=>r.split("\n")[0].trim())}`;
+        }
+
         await api.ensureAuth();
 
         if (!api.me) api.me = await api.users.profile();
@@ -99,10 +105,7 @@ export class SpotifyApi {
 
 
 
-        if (!this.cookies && !this.token){
-            // idk if thats a good idea
-            this.cookies = "sp_dc=AQA14NMMlYIQFTsETw3rZSepuL7FKAn_M1ZygLoP9pWiz6IloAmIgVejNghb0UhMlltn3IpigQ79nm2BZdjsvQfxyExa57VgKMWRRPVvbixh-Blby0IPTxLNhDXW_9en4ngSLSIoSNetoE5YlKDCOxUXbheiecMkNY0d8N4-IUXQN-DnGRQpAWM90V-VMNacZGprifJ5dHb_SWD-LSw";
-        }
+        
 
 
         this.albums = new AlbumsEndpoints(this);
