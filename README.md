@@ -11,7 +11,9 @@ Spotify API client capable of logging in with user accounts and *downloading*
 
 ## Usage
 
-The very basic, out of the box usage:
+```
+npm install --save sextify
+```
 
 ```ts
 import { SpotifyApi } from "sextify";
