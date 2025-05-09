@@ -161,7 +161,7 @@ export default class CdnEndpoints extends EndpointsBase {
 
     public async getFileWidevineDecryptionKey(fileId: string, device?: { privateKey: Buffer, clientId: Buffer }): Promise<KeyContainer[]> {
         let seekTable = await this.getSeekTable(fileId);
-        return this.getPsshWidevineDecryptionKey(Buffer.from(seekTable.pssh_widevine, "base64"), device);
+        return this.getPsshWidevineDecryptionKey(Buffer.from(seekTable.pssh_widevine ?? seekTable.pssh, "base64"), device);
     }
 
     public async getFilePlayplayDecryptionKey(fileId: string): Promise<Uint8Array> {
