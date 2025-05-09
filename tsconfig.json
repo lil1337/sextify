@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "module": "ES2022",
+    "noImplicitAny": false,
+    "strict": false,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "outDir": "./ts_out",
+    "lib": ["ESNext"],
+    "target": "ESNext",
+    "sourceMap": true,
+    "allowJs": true, 
+
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+
+    "baseUrl": "./src",
+    "paths": {
+      "lib/*": ["lib/*"]
+    }
+  },
+  
+  "exclude": ["node_modules"]
+}
