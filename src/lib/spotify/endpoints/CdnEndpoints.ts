@@ -7,7 +7,6 @@ import { getWidevineLicense } from '../applicationEndpoints/getWidevineLicense';
 
 import { getPlayplayLicense } from '../applicationEndpoints/getPlayplayLicense';
 import { encodePlayplayLicenseRequest, parsePlayplayLicenseResponse } from 'lib/playplay';
-import { inspect } from 'util';
 import { SpotifyApi } from '../spotify';
 import { CdnFile } from '../types/CdnFile';
 import { defaultWidevineDevice } from 'lib/widevine/defaultWidevineDevice';
@@ -143,7 +142,7 @@ export default class CdnEndpoints extends EndpointsBase {
     }
 
     public async resolveToUrls(fileId: string) {
-        return getFileCdnUrl(await this.api.ensureAuth(), fileId);
+        return getFileCdnUrl(this, fileId);
     }
 
     public async getSeekTable(fileId: string) {

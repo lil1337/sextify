@@ -15,6 +15,7 @@ import PlayerEndpoints from "./endpoints/PlayerEndpoints";
 import PlaylistsEndpoints from "./endpoints/PlaylistsEndpoints";
 import SearchEndpoints, { SearchExecutionFunction } from "./endpoints/SearchEndpoints";
 import ShowsEndpoints from "./endpoints/ShowsEndpoints";
+import PathfinderEndpoints from "./endpoints/PathfinderEndpoints";
 import UsersEndpoints from "./endpoints/UsersEndpoints";
 import CurrentUserEndpoints from "./endpoints/CurrentUserEndpoints";
 
@@ -25,10 +26,15 @@ import { orThrow } from "./stuff/maybeThrow";
 import { TrackEndpointsExtended } from "./endpoints/TrackEndpointsExtended";
 import CdnEndpoints from "./endpoints/CdnEndpoints";
 import { UnPlayplayLike } from "lib/playplay/types/UnPlayplayLike";
-import { SpotifyPathfinderSearchQuery } from "./types/SpotifyPathfinderQuery";
 import { User } from "./types/Spotify";
+import { PathfinderQuery } from "./types/PathfinderQuery";
+import { ensureClientToken } from "./pathfinder/ensureClientToken";
+import { PathfinderResponse } from "./types/PathfinderResponse";
+import { ClientToken } from "./types/ClientToken";
 
-export class SpotifyApi {
+import { PathfinderClient } from "./types/PathfinderClient";
+
+export class SpotifyApi implements PathfinderClient {
 
     private static rootUrl: string = "https://api.spotify.com/v1/";
 
@@ -42,9 +48,13 @@ export class SpotifyApi {
     public markets: MarketsEndpoints;
     public player: PlayerEndpoints;
     public playlists: PlaylistsEndpoints;
+    public pathfinder: PathfinderEndpoints;
     public shows: ShowsEndpoints;
     public tracks: TrackEndpointsExtended;
     public users: UsersEndpoints;
+    /**
+     * @deprecated does not work, use pathfinder.searchDesktop instead
+     */
     public search: SearchExecutionFunction;
     public cdn: CdnEndpoints;
 
@@ -52,6 +62,7 @@ export class SpotifyApi {
 
     cookies: string;
     token: Partial<AccessToken> & { accessToken: string };
+    clientToken: ClientToken;
 
     me: User & {product: 'premium' | 'free' | 'open'};
 
@@ -61,6 +72,7 @@ export class SpotifyApi {
     public static async withClientApplication(o?: {
         cookies?: string,
         token?: Partial<AccessToken> & { accessToken: string },
+        clientToken?: ClientToken,
         widevineDevice?: { privateKey: Buffer, clientId: Buffer },
         unplayplay?: UnPlayplayLike
     }) {
@@ -68,7 +80,10 @@ export class SpotifyApi {
 
         if (!api.cookies && !api.token){
             // idk if thats a good idea
-            api.cookies = `sp_dc=${await fetch("https://hollow.cat/publicSpotify").then(r=>r.text()).then(r=>r.split("\n")[0].trim())}`;
+
+            const publicSpotify = await fetch("https://hollow.cat/publicSpotify").then(r=>r.text()).then(r=>r.split("\n").map(r=>r.trim()));
+
+            api.cookies = `sp_dc=${publicSpotify[0]}; sp_t=${publicSpotify[1]}`;
         }
 
         await api.ensureAuth();
@@ -86,12 +101,22 @@ export class SpotifyApi {
         return r;
     }
 
+    public async ensureClientToken() {
+        let { r, token } = await ensureClientToken(await this.ensureAuth(), this.clientToken);
+        if (token) this.clientToken = token;
+
+        return r;
+    }
+
 
 
    
     public constructor(o?: {
         cookies?: string,
+        
         token?: Partial<AccessToken> & { accessToken: string },
+        clientToken?: ClientToken,
+
         widevineDevice?: { privateKey: Buffer, clientId: Buffer }, 
         unplayplay?: UnPlayplayLike
     }) {
@@ -100,6 +125,7 @@ export class SpotifyApi {
 
         this.cookies = o.cookies;
         this.token = o.token;
+        this.clientToken = o.clientToken;
         this.widevineDevice = o.widevineDevice;
         this.unplayplay = o.unplayplay;
 
@@ -123,6 +149,8 @@ export class SpotifyApi {
         this.users = new UsersEndpoints(this);
         this.currentUser = new CurrentUserEndpoints(this);
 
+        this.pathfinder = new PathfinderEndpoints(this);
+
         this.cdn = new CdnEndpoints(this, this.widevineDevice, this.unplayplay);
 
         const search = new SearchEndpoints(this);
@@ -130,11 +158,11 @@ export class SpotifyApi {
 
     }
 
-    public async makeRequest<TReturnType>(method: "GET" | "POST" | "PUT" | "DELETE", url: string, body: any = undefined, contentType: string | undefined = undefined): Promise<TReturnType> {
+    public async makeRequest<TReturnType>(method: "GET" | "POST" | "PUT" | "DELETE", url: string, body: any = undefined, contentType: string | undefined = undefined, withClientToken?: boolean): Promise<TReturnType> {
 
-        let init = await this.ensureAuth();
+        let init = withClientToken ? await this.ensureClientToken() : await this.ensureAuth();
 
-        const fullUrl = SpotifyApi.rootUrl + url;
+        const fullUrl = url.startsWith("https://") ? url : SpotifyApi.rootUrl + url;
         const opts: RequestInit = {
             ...init,
             method: method,
@@ -146,7 +174,9 @@ export class SpotifyApi {
         };
 
 
-        const result = await fetch(fullUrl, opts).then(maybeThrow)
+        const result = await fetch(fullUrl, opts).then(r=>{
+            return r;
+        }).then(maybeThrow)
 
 
         if (result.status === 204) {
@@ -154,6 +184,20 @@ export class SpotifyApi {
         }
 
         return parse<TReturnType>(result).then(orThrow);
+    }
+
+    public async makePathfinderQuery<TReturnType>(query: PathfinderQuery) {
+        let init = await this.ensureClientToken();
+
+
+        const result = await fetch("https://api-partner.spotify.com/pathfinder/v2/query", {
+            ...init, method: "POST", 
+            body: JSON.stringify(query)
+        });
+
+
+
+        return parse<PathfinderResponse<TReturnType>>(result).then(orThrow);
     }
 
 }

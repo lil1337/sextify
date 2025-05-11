@@ -1,8 +1,6 @@
-import type { AuthenticatedRequestInit } from "../types/AuthenticatedRequestInit";
 import type { Credits } from "../types/Credits";
-import { maybeThrow, orThrow } from "../stuff/maybeThrow";
+import EndpointsBase from "../endpoints/EndpointsBase";
 
 
-export const getCredits = (i: AuthenticatedRequestInit, trackId: string) =>
-    fetch(`https://spclient.wg.spotify.com/track-credits-view/v0/experimental/${trackId}/credits`, i).then(maybeThrow)
-    .then(r=>r.json()).then(orThrow) as Promise<Credits>
+export const getCredits = (f: EndpointsBase, trackId: string) =>
+    f.getRequest<Credits>(`https://spclient.wg.spotify.com/track-credits-view/v0/experimental/${trackId}/credits`)

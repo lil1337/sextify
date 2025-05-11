@@ -6,6 +6,7 @@ import { CdnFile } from "../types/CdnFile";
 import { DownloadOptions } from "./CdnEndpoints";
 import TracksEndpoints from "./TracksEndpoints";
 import { Readable } from "stream";
+import { Lyrics } from "../types/Lyrics";
 
 
 export type TrackDownloadOptions = DownloadOptions & {
@@ -37,12 +38,30 @@ export class TrackEndpointsExtended extends TracksEndpoints {
     }
 
     public async credits(trackId: string) {
-        return getCredits(await this.api.ensureAuth(), trackId);
+        return getCredits(this, trackId);
     }
 
     public async metadata(trackId: string) {
         this.api.ensureAuth();
-        return getMetadata(await this.api.ensureAuth(), "track", trackId);
+        return getMetadata(this, "track", trackId);
+    }
+
+    public async lyrics(trackId: string, picture?: string){
+        if (!picture) picture = await this.get(trackId).then(e=>e.album.images[0].url);
+
+        return this.api.makeRequest<Lyrics>(
+            "GET", 
+            `https://spclient.wg.spotify.com/color-lyrics/v2/track/${trackId}/image/${encodeURIComponent(picture)}?format=json&vocalRemoval=false&market=from_token`,
+            undefined, undefined, true
+        );
+    }
+
+    public async inspiredByMix(trackId: string) {
+        return this.api.makeRequest<{total: number, mediaItems: {uri: `spotify:playlist:${string}`}[]}>(
+            "GET", 
+            `https://spclient.wg.spotify.com/inspiredby-mix/v2/seed_to_playlist/spotify:track:${trackId}?response-format=json`,
+            undefined, undefined, true
+        );
     }
 
     public async fetch(trackId: string, targetPath?: string, options?: TrackDownloadOptions): Promise<void>;

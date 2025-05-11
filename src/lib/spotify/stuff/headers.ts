@@ -15,5 +15,6 @@ export const sessionHeaders = {
         "sec-gpc": "1",
         "sentry-trace": "38c11b22234b44898c88b3e5b74e53fa-8d069fade6358f82-0",
         "Referer": "https://open.spotify.com/",
+        "app-platform": "WebPlayer",
         "Referrer-Policy": "strict-origin-when-cross-origin"
 }

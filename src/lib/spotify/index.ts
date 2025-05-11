@@ -7,6 +7,9 @@ export type { SeekTable } from "./types/SeekTable";
 export type { StorageResolveResponse } from "./types/StorageResolveResponse";
 export type { TrackMetadata } from "./types/TrackMetadata";
 
-export type * from "./types/Spotify"
+export type * from "./types/DesktopSearch";
+export type * from "./types/Home";
+
+export type * from "./types/Spotify";
 
 export { SpotifyApi } from "./spotify";

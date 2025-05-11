@@ -6,7 +6,8 @@ export function maybeThrow(r: Response) {
     return r;
 }
 
-export function orThrow(json: any){
-    if (json.error) throw new SpotifyError(json.error.message);
-    return json;
+type Fuck = {error: {message: string}};
+export function orThrow<T>(json: T): T {
+    if ((json as Fuck).error) throw new SpotifyError((json as Fuck).error.message);
+    return json as T;
 }

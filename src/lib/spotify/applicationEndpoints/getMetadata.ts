@@ -1,15 +1,11 @@
 import { mediaIdToGid } from "../stuff/mediaIdToGid";
-import type { AuthenticatedRequestInit } from "../types/AuthenticatedRequestInit";
 import type { TrackMetadata } from "../types/TrackMetadata";
 
-import { maybeThrow, orThrow } from "../stuff/maybeThrow";
+import EndpointsBase from "../endpoints/EndpointsBase";
 
-export const getMetadata = (i: AuthenticatedRequestInit, type: "track", itemId: string) =>{
+
+export const getMetadata = (f: EndpointsBase, type: "track" | "album" | "artist" | "playlist" | "show" | "episode" | "user" | "podcast", itemId: string) => {
     if (itemId.length != 16) itemId = mediaIdToGid(itemId);
-    
-    return fetch(`https://spclient.wg.spotify.com/metadata/4/${type}/${itemId}?market=from_token`, i)
-    .then(maybeThrow)
-    .then(r=>r.json())
-    .then(orThrow)
-    .then(r=>r as TrackMetadata)
+
+    return f.getRequest<TrackMetadata>(`https://spclient.wg.spotify.com/metadata/4/${type}/${itemId}?market=from_token`)
 }
