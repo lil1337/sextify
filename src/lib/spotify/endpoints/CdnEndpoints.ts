@@ -22,6 +22,8 @@ import { resolve } from 'path';
 import { tmpdir } from 'os';
 import { randomUUID } from 'crypto';
 import { UnPlayplayLike } from 'lib/playplay/types/UnPlayplayLike';
+import { SeekTable } from '../types/SeekTable';
+import { quickMapQueue, streamQuickMapQueue } from '../stuff/roundQueue';
 
 export type DownloadOptions = {
     as?: "file" | "stream",
@@ -36,6 +38,7 @@ export type DownloadOptions = {
 
     includeMetadata?: boolean,
     includeAlbumArt?: boolean,
+    concurrency?: number,
 }
 
 export default class CdnEndpoints extends EndpointsBase {
@@ -49,6 +52,12 @@ export default class CdnEndpoints extends EndpointsBase {
         this.unplayplay = unplayplay;
     }
 
+
+    protected async pong(url: string, seekTable: SeekTable) {
+
+
+
+    }
 
 
     public async fetch(file: CdnFile, trackId: string, targetPath: string, options?: DownloadOptions): Promise<void>;
@@ -91,11 +100,11 @@ export default class CdnEndpoints extends EndpointsBase {
                 let remoteStream = await fetch(resolved.cdnurl[0]).then(r => Readable.fromWeb(r.body));
                 let stream = remoteStream.pipe(createPPStreamDecryptor(Buffer.from(decryptionKey)));
 
-                if (!targetPath){
+                if (!targetPath) {
                     if (tmpAlbumArtPath) await unlink(tmpAlbumArtPath);
                     return stream as Readable;
                 }
-                else{
+                else {
                     await writeFile(targetPath, stream);
                     if (tmpAlbumArtPath) await unlink(tmpAlbumArtPath);
 
@@ -107,9 +116,36 @@ export default class CdnEndpoints extends EndpointsBase {
             }
             else if (file.format.startsWith("MP4")) {
 
-                let decryptionKey = await this.getFileWidevineDecryptionKey(file.file_id);
+                let seekTable = await this.getSeekTable(file.file_id);
+                let decryptionKey = await this.getPsshWidevineDecryptionKey(Buffer.from(seekTable.pssh_widevine ?? seekTable.pssh, "base64"), this.device);
 
-                let remoteStream = await fetch(resolved.cdnurl[0]).then(r => Readable.fromWeb(r.body));
+                let resolved = await this.resolveToUrls(file.file_id);
+
+                // download from multiple cdns, in parralel, with range requests (as if we are streaming from the official client)
+                // so spotify is a little bit less suspicious
+
+                const perCdn = resolved.cdnurl.reduce((previous, current) => {
+                    const [subdomain, ...rest] = new URL(current).hostname.split(".");
+                    let name = subdomain.startsWith("audio") ? ["audio", subdomain.split("-")[1]].join("-") : [subdomain, ...rest].join(".");
+
+                    return { ...previous, [name]: previous[name] ? [...previous[name], current] : [current] }
+                }, {} as Record<string, string[]>);
+                const urlsToUse = Object.values(perCdn).filter(e => e.length).map(e => e[0]);
+
+                const offsets = [[0, seekTable.offset - 1]];
+                seekTable.segments.map(([seg]) =>
+                    offsets.push([offsets[offsets.length - 1][1] + 1, offsets[offsets.length - 1][1] + seg])
+                );
+
+                let remoteStream = streamQuickMapQueue(quickMapQueue(
+                    offsets.map((o, i) => [urlsToUse[i % urlsToUse.length], ...o]) as [string, number, number][],
+                    ([url, start, end], index, groupIndex, offsets) => fetch(url, { headers: { range: `bytes=${start}-${end}` } })
+                        .then(r => r.blob()).then(r => r.arrayBuffer()).then(r => {
+                            // console.log(`${index}/${offsets.length} [${start} - ${end}] ${new URL(url).hostname} ${groupIndex}`);
+                            return Buffer.from(r);
+                        }),
+                    { concurrency: o?.concurrency ?? 5, autostart: false }
+                )).stream;
 
                 if (!targetPath) return ffmpegStream(remoteStream, {
                     decryptionKey: Buffer.from(decryptionKey[0].key, "hex"),
@@ -122,7 +158,7 @@ export default class CdnEndpoints extends EndpointsBase {
                 });
                 else return await ffmpegStream(remoteStream, targetPath, {
                     decryptionKey: Buffer.from(decryptionKey[0].key, "hex"),
-                    as: "file", 
+                    as: "file",
                     overrideArgs: o?.ffmpeg?.overrideArgs,
                     modifyArgs: o?.ffmpeg?.modifyArgs,
                     ffmpegPath: o?.ffmpeg?.ffmpegPath,
