@@ -1,10 +1,20 @@
+import { SpotifyApi } from '..';
 import { home } from '../pathfinder/home';
 import { searchDesktop } from '../pathfinder/searchDesktop';
+import { PathfinderClient } from '../types/PathfinderClient';
 import { PathfinderHomeVariables } from '../types/PathfinderHomeVariables';
 import { SpotifyPathfinderSearchQuery } from '../types/SpotifyPathfinderQuery';
 import EndpointsBase from './EndpointsBase';
 
 export default class PathfinderEndpoints extends EndpointsBase {
+
+
+    protected override api: unknown & {
+        makeRequest: typeof SpotifyApi.prototype.makeRequest,
+        ensureAuth: typeof SpotifyApi.prototype.ensureAuth,
+        ensureClientToken: typeof SpotifyApi.prototype.ensureClientToken,
+        cookies: string
+    } & PathfinderClient = undefined;
 
     public searchDesktop(variables: SpotifyPathfinderSearchQuery) {
         return searchDesktop(this.api, variables);

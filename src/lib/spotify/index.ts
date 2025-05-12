@@ -12,4 +12,6 @@ export type * from "./types/Home";
 
 export type * from "./types/Spotify";
 
+export * as endpoints from "./endpoints";
+
 export { SpotifyApi } from "./spotify";

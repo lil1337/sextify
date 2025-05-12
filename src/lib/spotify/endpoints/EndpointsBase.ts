@@ -1,7 +1,12 @@
 import type { SpotifyApi } from "..";
+import { PathfinderClient } from "../types/PathfinderClient";
 
 export default class EndpointsBase {
-    constructor(protected api: SpotifyApi) {
+    constructor(protected api: unknown & {
+        makeRequest: typeof SpotifyApi.prototype.makeRequest,
+        ensureAuth: typeof SpotifyApi.prototype.ensureAuth,
+        ensureClientToken: typeof SpotifyApi.prototype.ensureClientToken
+    } & PathfinderClient) {
     }
 
     public async getRequest<TReturnType>(url: string): Promise<TReturnType> {

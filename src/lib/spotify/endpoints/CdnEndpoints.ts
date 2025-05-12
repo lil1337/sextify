@@ -24,6 +24,7 @@ import { randomUUID } from 'crypto';
 import { UnPlayplayLike } from 'lib/playplay/types/UnPlayplayLike';
 import { SeekTable } from '../types/SeekTable';
 import { quickMapQueue, streamQuickMapQueue } from '../stuff/roundQueue';
+import { PathfinderClient } from '../types/PathfinderClient';
 
 export type DownloadOptions = {
     as?: "file" | "stream",
@@ -41,13 +42,29 @@ export type DownloadOptions = {
     concurrency?: number,
 }
 
+type ApiWithTrackEndpoints = unknown & {
+        makeRequest: typeof SpotifyApi.prototype.makeRequest,
+        ensureAuth: typeof SpotifyApi.prototype.ensureAuth,
+        ensureClientToken: typeof SpotifyApi.prototype.ensureClientToken,
+        
+        tracks: {
+            get: typeof SpotifyApi.prototype.tracks.get,
+            credits: typeof SpotifyApi.prototype.tracks.credits
+        }
+} & PathfinderClient
+
 export default class CdnEndpoints extends EndpointsBase {
 
     device: { privateKey: Buffer, clientId: Buffer };
     unplayplay: UnPlayplayLike
 
-    constructor(api: SpotifyApi, widevineDevice?: { privateKey: Buffer, clientId: Buffer }, unplayplay?: UnPlayplayLike) {
+    protected override api: ApiWithTrackEndpoints = undefined;
+
+
+    constructor(api: ApiWithTrackEndpoints, widevineDevice?: { privateKey: Buffer, clientId: Buffer }, unplayplay?: UnPlayplayLike) {
+        
         super(api);
+        this.api = api;
         this.device = widevineDevice || defaultWidevineDevice;
         this.unplayplay = unplayplay;
     }

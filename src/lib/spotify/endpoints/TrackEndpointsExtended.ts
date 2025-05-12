@@ -8,6 +8,9 @@ import TracksEndpoints from "./TracksEndpoints";
 import { Readable } from "stream";
 import { Lyrics } from "../types/Lyrics";
 
+import { endpoints } from "..";
+import { PathfinderClient } from "../types/PathfinderClient";
+
 
 export type TrackDownloadOptions = DownloadOptions & {
     preferredFormat?: typeof SpotifyFormats[number],
@@ -28,11 +31,27 @@ function searchForFallback(preferred: typeof SpotifyFormats[number], available: 
     else throw new Error("Unknown format");
 }
 
+type ApiWithUsersMeAndCdn = unknown & unknown & {
+        makeRequest: typeof SpotifyApi.prototype.makeRequest,
+        ensureAuth: typeof SpotifyApi.prototype.ensureAuth,
+        ensureClientToken: typeof SpotifyApi.prototype.ensureClientToken,
+        me: typeof SpotifyApi.prototype.me,
+        cdn: {
+            fetch: typeof endpoints.CdnEndpoints.prototype.fetch
+        },
+        users: {
+            profile: typeof endpoints.UsersEndpoints.prototype.profile
+        }
+
+} & PathfinderClient
+
 export class TrackEndpointsExtended extends TracksEndpoints {
 
     isThereAUnplayplay: boolean;
 
-    constructor(api: SpotifyApi, isThereAUnplayplay: boolean) {
+    protected override api: ApiWithUsersMeAndCdn = undefined;
+
+    constructor(api: ApiWithUsersMeAndCdn, isThereAUnplayplay: boolean) {
         super(api);
         this.isThereAUnplayplay = isThereAUnplayplay;
     }
