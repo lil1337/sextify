@@ -1,4 +1,4 @@
-import type { Genres, Track } from '../types/Spotify';
+import type { Genres, SpotifyTrack } from '../types/Spotify';
 import EndpointsBase from './EndpointsBase';
 
 export default class RecommendationsEndpoints extends EndpointsBase {
@@ -67,7 +67,7 @@ export interface RecommendationsRequest extends RecommendationsRequestRequiredAr
 
 export interface RecommendationsResponse {
     seeds: RecommendationSeed[];
-    tracks: Track[];
+    tracks: SpotifyTrack[];
 }
 
 export interface RecommendationSeed {

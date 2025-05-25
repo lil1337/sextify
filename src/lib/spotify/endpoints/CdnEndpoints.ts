@@ -8,7 +8,7 @@ import { getWidevineLicense } from '../applicationEndpoints/getWidevineLicense';
 import { getPlayplayLicense } from '../applicationEndpoints/getPlayplayLicense';
 import { encodePlayplayLicenseRequest, parsePlayplayLicenseResponse } from 'lib/playplay';
 import { SpotifyApi } from '../spotify';
-import { CdnFile } from '../types/CdnFile';
+import { SpotifyCdnFile } from '../types/SpotifyCdnFile';
 import { defaultWidevineDevice } from 'lib/widevine/defaultWidevineDevice';
 import { Readable } from 'stream';
 import { createPPStreamDecryptor } from 'lib/playplay/createPlayplayStreamDecryptor';
@@ -17,14 +17,15 @@ import { ffmpegStream } from 'lib/ffmpeg/ffmpegDecryptStream';
 import { ID3Metadata } from 'lib/ffmpeg/types/ID3Metadata';
 import { QuickTimeMetadata } from 'lib/ffmpeg/types/QuickTimeMetadata';
 import { spotifyMetadataToQuickTime } from 'lib/ffmpeg/spotifyMetadataToQuickTime';
-import { Track } from '../types/Spotify';
+import { SpotifyTrack } from '../types/Spotify';
 import { resolve } from 'path';
 import { tmpdir } from 'os';
 import { randomUUID } from 'crypto';
 import { UnPlayplayLike } from 'lib/playplay/types/UnPlayplayLike';
 import { SeekTable } from '../types/SeekTable';
 import { quickMapQueue, streamQuickMapQueue } from '../stuff/roundQueue';
-import { PathfinderClient } from '../types/PathfinderClient';
+import { PathfinderClient } from '../types/Pathfinder/PathfinderClient';
+import { fetchRetry } from '../stuff/fetchRetry';
 
 export type DownloadOptions = {
     as?: "file" | "stream",
@@ -58,28 +59,22 @@ export default class CdnEndpoints extends EndpointsBase {
     device: { privateKey: Buffer, clientId: Buffer };
     unplayplay: UnPlayplayLike
 
-    protected override api: ApiWithTrackEndpoints = undefined;
+    api: ApiWithTrackEndpoints = undefined;
 
 
     constructor(api: ApiWithTrackEndpoints, widevineDevice?: { privateKey: Buffer, clientId: Buffer }, unplayplay?: UnPlayplayLike) {
         
         super(api);
         this.api = api;
+
         this.device = widevineDevice || defaultWidevineDevice;
         this.unplayplay = unplayplay;
     }
 
 
-    protected async pong(url: string, seekTable: SeekTable) {
-
-
-
-    }
-
-
-    public async fetch(file: CdnFile, trackId: string, targetPath: string, options?: DownloadOptions): Promise<void>;
-    public async fetch(file: CdnFile, trackId: string, options?: DownloadOptions): Promise<Readable>;
-    public async fetch(file: CdnFile, trackId: string, oops?: string | DownloadOptions, oopsie?: DownloadOptions) {
+    public async fetch(file: SpotifyCdnFile, trackId: string, targetPath: string, options?: DownloadOptions): Promise<void>;
+    public async fetch(file: SpotifyCdnFile, trackId: string, options?: DownloadOptions): Promise<Readable>;
+    public async fetch(file: SpotifyCdnFile, trackId: string, oops?: string | DownloadOptions, oopsie?: DownloadOptions) {
 
         let targetPath: string = undefined, o: DownloadOptions = undefined;
         let tmpAlbumArtPath: string = undefined;
@@ -92,12 +87,12 @@ export default class CdnEndpoints extends EndpointsBase {
 
 
         if (o?.includeMetadata ?? true) {
-            let track: Track = await this.api.tracks.get(trackId);
+            let track: SpotifyTrack = await this.api.tracks.get(trackId);
             if (o?.includeAlbumArt ?? true) {
                 tmpAlbumArtPath = resolve(tmpdir(), `${randomUUID()}-${track.id}.jpg`);
                 await writeFile(
                     tmpAlbumArtPath,
-                    await fetch(track.album.images[0].url).then(r => r.body).then(r => Readable.fromWeb(r))
+                    await fetchRetry(track.album.images[0].url).then(r => r.body).then(r => Readable.fromWeb(r))
                 );
             }
             fileMetadata = spotifyMetadataToQuickTime(
@@ -114,7 +109,7 @@ export default class CdnEndpoints extends EndpointsBase {
             if (file.format.startsWith("OGG")) {
                 let decryptionKey = await this.getFilePlayplayDecryptionKey(file.file_id);
 
-                let remoteStream = await fetch(resolved.cdnurl[0]).then(r => Readable.fromWeb(r.body));
+                let remoteStream = await fetchRetry(resolved.cdnurl[0]).then(r => Readable.fromWeb(r.body));
                 let stream = remoteStream.pipe(createPPStreamDecryptor(Buffer.from(decryptionKey)));
 
                 if (!targetPath) {
@@ -156,7 +151,7 @@ export default class CdnEndpoints extends EndpointsBase {
 
                 let remoteStream = streamQuickMapQueue(quickMapQueue(
                     offsets.map((o, i) => [urlsToUse[i % urlsToUse.length], ...o]) as [string, number, number][],
-                    ([url, start, end], index, groupIndex, offsets) => fetch(url, { headers: { range: `bytes=${start}-${end}` } })
+                    ([url, start, end], index, groupIndex, offsets) => fetchRetry(url, { headers: { range: `bytes=${start}-${end}` } })
                         .then(r => r.blob()).then(r => r.arrayBuffer()).then(r => {
                             // console.log(`${index}/${offsets.length} [${start} - ${end}] ${new URL(url).hostname} ${groupIndex}`);
                             return Buffer.from(r);
@@ -199,7 +194,8 @@ export default class CdnEndpoints extends EndpointsBase {
     }
 
     public async getSeekTable(fileId: string) {
-        return getSeekTable(fileId);
+        
+        return getSeekTable(this, fileId);
     }
 
     public async getPsshWidevineDecryptionKey(pssh: Buffer, device?: { privateKey: Buffer, clientId: Buffer }): Promise<KeyContainer[]> {

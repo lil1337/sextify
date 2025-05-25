@@ -1,5 +1,5 @@
 import type { SpotifyApi } from '../spotify';
-import type { User, Page, Artist, Track, MaxInt, FollowedArtists, Market, SavedAlbum, SimplifiedAudiobook, SimplifiedPlaylist, SavedEpisode, SavedShow, SavedTrack, UserProfile } from '../types/Spotify';
+import type { User, Page, SpotifyArtist, SpotifyTrack, MaxInt, FollowedArtists, Market, SavedAlbum, SimplifiedAudiobook, SimplifiedPlaylist, SavedEpisode, SavedShow, SavedTrack, UserProfile } from '../types/Spotify';
 import EndpointsBase from './EndpointsBase';
 
 export default class CurrentUserEndpoints extends EndpointsBase {
@@ -27,7 +27,7 @@ export default class CurrentUserEndpoints extends EndpointsBase {
 
     public topItems<T extends "artists" | "tracks">(type: T, time_range?: 'short_term' | 'medium_term' | 'long_term', limit?: MaxInt<50>, offset?: number) {
         const params = this.paramsFor({ time_range, limit, offset });
-        return this.getRequest<Page<T extends "artists" ? Artist : Track>>(`me/top/${type}${params}`);
+        return this.getRequest<Page<T extends "artists" ? SpotifyArtist : SpotifyTrack>>(`me/top/${type}${params}`);
     }
 
     public followedArtists(after?: string, limit?: MaxInt<50>) {

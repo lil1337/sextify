@@ -1,4 +1,4 @@
-import type { Market, Playlist, MaxInt, Page, Track, SnapshotReference, Image, PlaylistedTrack, QueryAdditionalTypes, TrackItem } from '../types/Spotify';
+import type { Market, Playlist, MaxInt, Page, SpotifyTrack, SnapshotReference, Image, PlaylistedTrack, QueryAdditionalTypes, TrackItem } from '../types/Spotify';
 import EndpointsBase from './EndpointsBase';
 
 export default class PlaylistsEndpoints extends EndpointsBase {
@@ -8,7 +8,7 @@ export default class PlaylistsEndpoints extends EndpointsBase {
     ) {
         // TODO: better support for fields
         const params = this.paramsFor({ market, fields, additional_types: additional_types?.join(',') });
-        return this.getRequest<Playlist<AdditionalTypes extends undefined ? Track : TrackItem>>(`playlists/${playlist_id}${params}`);
+        return this.getRequest<Playlist<AdditionalTypes extends undefined ? SpotifyTrack : TrackItem>>(`playlists/${playlist_id}${params}`);
     }
 
     public getPlaylistItems<AdditionalTypes extends QueryAdditionalTypes | undefined = undefined>(
@@ -16,7 +16,7 @@ export default class PlaylistsEndpoints extends EndpointsBase {
     ) {
         // TODO: better support for fields
         const params = this.paramsFor({ market, fields, limit, offset, additional_types: additional_types?.join(',') });
-        return this.getRequest<Page<PlaylistedTrack<AdditionalTypes extends undefined ? Track : TrackItem>>>(`playlists/${playlist_id}/tracks${params}`);
+        return this.getRequest<Page<PlaylistedTrack<AdditionalTypes extends undefined ? SpotifyTrack : TrackItem>>>(`playlists/${playlist_id}/tracks${params}`);
     }
 
     public async changePlaylistDetails(playlist_id: string, request: ChangePlaylistDetailsRequest) {

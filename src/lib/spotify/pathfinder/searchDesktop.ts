@@ -1,8 +1,8 @@
 import { SpotifyPathfinderSearchQuery } from "../../../../out";
 import { SpotifySearchResponseDesktopSearch } from "../types/DesktopSearch";
-import { PathfinderClient } from "../types/PathfinderClient";
+import { PathfinderClient } from "../types/Pathfinder/PathfinderClient";
 
-export const searchDesktop = (f: PathfinderClient, variables: SpotifyPathfinderSearchQuery) => {
+export function searchDesktop(f: PathfinderClient, variables: SpotifyPathfinderSearchQuery) {
     if (typeof variables.includeArtistHasConcertsField === "undefined") variables.includeArtistHasConcertsField = false;
     if (typeof variables.includeAudiobooks === "undefined") variables.includeAudiobooks = true;
     if (typeof variables.includeAuthors === "undefined") variables.includeAuthors = false;

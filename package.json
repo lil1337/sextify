@@ -1,6 +1,6 @@
 {
   "name": "sextify",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Spotify API client capable of logging in with user accounts and downloading",
   "main": "out/index.js",
   "type": "module",

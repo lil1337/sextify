@@ -125,7 +125,8 @@ export class Session {
 
   createLicenseRequest(licenseType: LicenseType = LicenseType.STREAMING, android: boolean = true): Buffer {
     if (!this._pssh.subarray(12, 28).equals(Buffer.from(WIDEVINE_SYSTEM_ID))) {
-      throw new Error("the pssh is not an actuall pssh");
+      console.log({pssh: this._pssh})
+      throw new Error(`the pssh is not an widevine pssh ("${this._pssh.subarray(12, 28).toString("hex")}" != "${Buffer.from(WIDEVINE_SYSTEM_ID).toString("hex")}")`);
     }
 
     const pssh = this._parsePSSH(this._pssh);

@@ -1,4 +1,4 @@
-export type ClientTokenGrantedResponse = {
+export type SpotifyClientTokenGrantedResponse = {
     response_type: "RESPONSE_GRANTED_TOKEN_RESPONSE";
     granted_token: {
         token: string;

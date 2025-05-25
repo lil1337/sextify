@@ -77,7 +77,7 @@ export interface AlbumResponseWrapperHome {
 }
 
 export interface AlbumHome {
-  __typename: 'Album';
+  __typename: 'SpotifyAlbum';
   name: string;
   uri: string;
   albumType: string;
@@ -112,7 +112,7 @@ export interface ArtistResponseWrapperHome {
 }
 
 export interface ArtistHome {
-  __typename: 'Artist';
+  __typename: 'SpotifyArtist';
   profile: {
     name: string;
   };

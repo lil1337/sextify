@@ -1,14 +1,14 @@
-import type { Market, Track, Tracks, AudioFeatures, AudioFeaturesCollection, AudioAnalysis } from '../types/Spotify';
+import type { Market, SpotifyTrack, Tracks, AudioFeatures, AudioFeaturesCollection, AudioAnalysis } from '../types/Spotify';
 import EndpointsBase from './EndpointsBase';
 
 export default class TracksEndpoints extends EndpointsBase {
 
-    public get(id: string, market?: Market): Promise<Track>
-    public get(ids: string[], market?: Market): Promise<Track[]>
+    public get(id: string, market?: Market): Promise<SpotifyTrack>
+    public get(ids: string[], market?: Market): Promise<SpotifyTrack[]>
     public async get(idOrIds: string | string[], market?: Market) {
         if (typeof idOrIds === 'string') {
             const params = this.paramsFor({ market });
-            return this.getRequest<Track>(`tracks/${idOrIds}${params}`);
+            return this.getRequest<SpotifyTrack>(`tracks/${idOrIds}${params}`);
         }
 
         const params = this.paramsFor({ ids: idOrIds, market });

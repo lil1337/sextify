@@ -98,7 +98,7 @@ export interface RecommendationsRequest extends RecommendationsRequestRequiredAr
 
 export interface RecommendationsResponse {
     seeds: RecommendationSeed[];
-    tracks: Track[];
+    tracks: SpotifyTrack[];
 }
 
 export interface RecommendationSeed {
@@ -112,9 +112,9 @@ export interface RecommendationSeed {
 }
 
 export type QueryAdditionalTypes = ['episode'];
-export type TrackItem = Track | Episode;
+export type TrackItem = SpotifyTrack | Episode;
 
-interface AlbumBase {
+export interface AlbumBase {
     album_type: string
     available_markets: string[]
     copyrights: Copyright[]
@@ -136,22 +136,22 @@ interface AlbumBase {
 }
 
 export interface SimplifiedAlbum extends AlbumBase {
-    album_group: string
+    album_group?: string
     artists: SimplifiedArtist[]
 }
 
 export interface SavedAlbum {
     added_at: string
-    album: Album
+    album: SpotifyAlbum
 }
 
-export interface Album extends AlbumBase {
-    artists: Artist[]
+export interface SpotifyAlbum extends AlbumBase {
+    artists: SpotifyArtist[]
     tracks: Page<SimplifiedTrack>
 }
 
 export interface Albums {
-    albums: Album[]
+    albums: SpotifyAlbum[]
 }
 
 export interface NewReleases {
@@ -225,7 +225,7 @@ export interface SimplifiedTrack {
 
 export interface SavedTrack {
     added_at: string
-    track: Track
+    track: SpotifyTrack
 }
 
 export interface ExternalIds {
@@ -234,14 +234,14 @@ export interface ExternalIds {
     upc: string
 }
 
-export interface Track extends SimplifiedTrack {
+export interface SpotifyTrack extends SimplifiedTrack {
     album: SimplifiedAlbum
     external_ids: ExternalIds
     popularity: number
 }
 
 export interface Tracks {
-    tracks: Track[]
+    tracks: SpotifyTrack[]
 }
 
 export interface SimplifiedArtist {
@@ -253,7 +253,7 @@ export interface SimplifiedArtist {
     uri: string
 }
 
-export interface Artist extends SimplifiedArtist {
+export interface SpotifyArtist extends SimplifiedArtist {
     followers: Followers
     genres: string[]
     images: Image[]
@@ -261,11 +261,11 @@ export interface Artist extends SimplifiedArtist {
 }
 
 export interface Artists {
-    artists: Artist[]
+    artists: SpotifyArtist[]
 }
 
 export interface FollowedArtists {
-    artists: Page<Artist>
+    artists: Page<SpotifyArtist>
 }
 
 export interface Followers {
@@ -290,8 +290,8 @@ interface ResourceTypeToResultKey {
 
 interface SearchResultsMap {
     album: SimplifiedAlbum
-    artist: Artist
-    track: Track
+    artist: SpotifyArtist
+    track: SpotifyTrack
     playlist: SimplifiedPlaylist
     show: SimplifiedShow
     episode: SimplifiedEpisode
@@ -324,7 +324,7 @@ export interface ArtistSearchResultItem {
 }
 
 export interface TopTracksResult {
-    tracks: Track[];
+    tracks: SpotifyTrack[];
 }
 
 export interface Image {
@@ -753,7 +753,7 @@ export interface RecentlyPlayedTracksPage {
 }
 
 export interface PlayHistory {
-    track: Track
+    track: SpotifyTrack
     played_at: string
     context: Context
 }

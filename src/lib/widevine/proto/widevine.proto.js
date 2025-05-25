@@ -435,7 +435,7 @@ export const License = $root.License = (() => {
      * @property {Array.<License.IKeyContainer>|null} [key] License key
      * @property {number|Long|null} [licenseStartTime] License licenseStartTime
      * @property {boolean|null} [remoteAttestationVerified] License remoteAttestationVerified
-     * @property {Uint8Array|null} [providerClientToken] License providerClientToken
+     * @property {Uint8Array|null} [providerSpotifyClientToken] License providerSpotifyClientToken
      * @property {number|null} [protectionScheme] License protectionScheme
      * @property {Uint8Array|null} [srmRequirement] License srmRequirement
      * @property {Uint8Array|null} [srmUpdate] License srmUpdate
@@ -501,12 +501,12 @@ export const License = $root.License = (() => {
     License.prototype.remoteAttestationVerified = false;
 
     /**
-     * License providerClientToken.
-     * @member {Uint8Array} providerClientToken
+     * License providerSpotifyClientToken.
+     * @member {Uint8Array} providerSpotifyClientToken
      * @memberof License
      * @instance
      */
-    License.prototype.providerClientToken = $util.newBuffer([]);
+    License.prototype.providerSpotifyClientToken = $util.newBuffer([]);
 
     /**
      * License protectionScheme.
@@ -583,8 +583,8 @@ export const License = $root.License = (() => {
             writer.uint32(/* id 4, wireType 0 =*/32).int64(message.licenseStartTime);
         if (message.remoteAttestationVerified != null && Object.hasOwnProperty.call(message, "remoteAttestationVerified"))
             writer.uint32(/* id 5, wireType 0 =*/40).bool(message.remoteAttestationVerified);
-        if (message.providerClientToken != null && Object.hasOwnProperty.call(message, "providerClientToken"))
-            writer.uint32(/* id 6, wireType 2 =*/50).bytes(message.providerClientToken);
+        if (message.providerSpotifyClientToken != null && Object.hasOwnProperty.call(message, "providerSpotifyClientToken"))
+            writer.uint32(/* id 6, wireType 2 =*/50).bytes(message.providerSpotifyClientToken);
         if (message.protectionScheme != null && Object.hasOwnProperty.call(message, "protectionScheme"))
             writer.uint32(/* id 7, wireType 0 =*/56).uint32(message.protectionScheme);
         if (message.srmRequirement != null && Object.hasOwnProperty.call(message, "srmRequirement"))
@@ -653,7 +653,7 @@ export const License = $root.License = (() => {
                     break;
                 }
             case 6: {
-                    message.providerClientToken = reader.bytes();
+                    message.providerSpotifyClientToken = reader.bytes();
                     break;
                 }
             case 7: {
@@ -738,9 +738,9 @@ export const License = $root.License = (() => {
         if (message.remoteAttestationVerified != null && message.hasOwnProperty("remoteAttestationVerified"))
             if (typeof message.remoteAttestationVerified !== "boolean")
                 return "remoteAttestationVerified: boolean expected";
-        if (message.providerClientToken != null && message.hasOwnProperty("providerClientToken"))
-            if (!(message.providerClientToken && typeof message.providerClientToken.length === "number" || $util.isString(message.providerClientToken)))
-                return "providerClientToken: buffer expected";
+        if (message.providerSpotifyClientToken != null && message.hasOwnProperty("providerSpotifyClientToken"))
+            if (!(message.providerSpotifyClientToken && typeof message.providerSpotifyClientToken.length === "number" || $util.isString(message.providerSpotifyClientToken)))
+                return "providerSpotifyClientToken: buffer expected";
         if (message.protectionScheme != null && message.hasOwnProperty("protectionScheme"))
             if (!$util.isInteger(message.protectionScheme))
                 return "protectionScheme: integer expected";
@@ -815,11 +815,11 @@ export const License = $root.License = (() => {
                 message.licenseStartTime = new $util.LongBits(object.licenseStartTime.low >>> 0, object.licenseStartTime.high >>> 0).toNumber();
         if (object.remoteAttestationVerified != null)
             message.remoteAttestationVerified = Boolean(object.remoteAttestationVerified);
-        if (object.providerClientToken != null)
-            if (typeof object.providerClientToken === "string")
-                $util.base64.decode(object.providerClientToken, message.providerClientToken = $util.newBuffer($util.base64.length(object.providerClientToken)), 0);
-            else if (object.providerClientToken.length >= 0)
-                message.providerClientToken = object.providerClientToken;
+        if (object.providerSpotifyClientToken != null)
+            if (typeof object.providerSpotifyClientToken === "string")
+                $util.base64.decode(object.providerSpotifyClientToken, message.providerSpotifyClientToken = $util.newBuffer($util.base64.length(object.providerSpotifyClientToken)), 0);
+            else if (object.providerSpotifyClientToken.length >= 0)
+                message.providerSpotifyClientToken = object.providerSpotifyClientToken;
         if (object.protectionScheme != null)
             message.protectionScheme = object.protectionScheme >>> 0;
         if (object.srmRequirement != null)
@@ -904,11 +904,11 @@ export const License = $root.License = (() => {
                 object.licenseStartTime = options.longs === String ? "0" : 0;
             object.remoteAttestationVerified = false;
             if (options.bytes === String)
-                object.providerClientToken = "";
+                object.providerSpotifyClientToken = "";
             else {
-                object.providerClientToken = [];
+                object.providerSpotifyClientToken = [];
                 if (options.bytes !== Array)
-                    object.providerClientToken = $util.newBuffer(object.providerClientToken);
+                    object.providerSpotifyClientToken = $util.newBuffer(object.providerSpotifyClientToken);
             }
             object.protectionScheme = 0;
             if (options.bytes === String)
@@ -943,8 +943,8 @@ export const License = $root.License = (() => {
                 object.licenseStartTime = options.longs === String ? $util.Long.prototype.toString.call(message.licenseStartTime) : options.longs === Number ? new $util.LongBits(message.licenseStartTime.low >>> 0, message.licenseStartTime.high >>> 0).toNumber() : message.licenseStartTime;
         if (message.remoteAttestationVerified != null && message.hasOwnProperty("remoteAttestationVerified"))
             object.remoteAttestationVerified = message.remoteAttestationVerified;
-        if (message.providerClientToken != null && message.hasOwnProperty("providerClientToken"))
-            object.providerClientToken = options.bytes === String ? $util.base64.encode(message.providerClientToken, 0, message.providerClientToken.length) : options.bytes === Array ? Array.prototype.slice.call(message.providerClientToken) : message.providerClientToken;
+        if (message.providerSpotifyClientToken != null && message.hasOwnProperty("providerSpotifyClientToken"))
+            object.providerSpotifyClientToken = options.bytes === String ? $util.base64.encode(message.providerSpotifyClientToken, 0, message.providerSpotifyClientToken.length) : options.bytes === Array ? Array.prototype.slice.call(message.providerSpotifyClientToken) : message.providerSpotifyClientToken;
         if (message.protectionScheme != null && message.hasOwnProperty("protectionScheme"))
             object.protectionScheme = message.protectionScheme;
         if (message.srmRequirement != null && message.hasOwnProperty("srmRequirement"))
@@ -6910,7 +6910,7 @@ export const ClientIdentification = $root.ClientIdentification = (() => {
      * @property {ClientIdentification.TokenType|null} [type] ClientIdentification type
      * @property {Uint8Array|null} [token] ClientIdentification token
      * @property {Array.<ClientIdentification.INameValue>|null} [clientInfo] ClientIdentification clientInfo
-     * @property {Uint8Array|null} [providerClientToken] ClientIdentification providerClientToken
+     * @property {Uint8Array|null} [providerSpotifyClientToken] ClientIdentification providerSpotifyClientToken
      * @property {number|null} [licenseCounter] ClientIdentification licenseCounter
      * @property {ClientIdentification.IClientCapabilities|null} [clientCapabilities] ClientIdentification clientCapabilities
      * @property {Uint8Array|null} [vmpData] ClientIdentification vmpData
@@ -6959,12 +6959,12 @@ export const ClientIdentification = $root.ClientIdentification = (() => {
     ClientIdentification.prototype.clientInfo = $util.emptyArray;
 
     /**
-     * ClientIdentification providerClientToken.
-     * @member {Uint8Array} providerClientToken
+     * ClientIdentification providerSpotifyClientToken.
+     * @member {Uint8Array} providerSpotifyClientToken
      * @memberof ClientIdentification
      * @instance
      */
-    ClientIdentification.prototype.providerClientToken = $util.newBuffer([]);
+    ClientIdentification.prototype.providerSpotifyClientToken = $util.newBuffer([]);
 
     /**
      * ClientIdentification licenseCounter.
@@ -7029,8 +7029,8 @@ export const ClientIdentification = $root.ClientIdentification = (() => {
         if (message.clientInfo != null && message.clientInfo.length)
             for (let i = 0; i < message.clientInfo.length; ++i)
                 $root.ClientIdentification.NameValue.encode(message.clientInfo[i], writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
-        if (message.providerClientToken != null && Object.hasOwnProperty.call(message, "providerClientToken"))
-            writer.uint32(/* id 4, wireType 2 =*/34).bytes(message.providerClientToken);
+        if (message.providerSpotifyClientToken != null && Object.hasOwnProperty.call(message, "providerSpotifyClientToken"))
+            writer.uint32(/* id 4, wireType 2 =*/34).bytes(message.providerSpotifyClientToken);
         if (message.licenseCounter != null && Object.hasOwnProperty.call(message, "licenseCounter"))
             writer.uint32(/* id 5, wireType 0 =*/40).uint32(message.licenseCounter);
         if (message.clientCapabilities != null && Object.hasOwnProperty.call(message, "clientCapabilities"))
@@ -7089,7 +7089,7 @@ export const ClientIdentification = $root.ClientIdentification = (() => {
                     break;
                 }
             case 4: {
-                    message.providerClientToken = reader.bytes();
+                    message.providerSpotifyClientToken = reader.bytes();
                     break;
                 }
             case 5: {
@@ -7167,9 +7167,9 @@ export const ClientIdentification = $root.ClientIdentification = (() => {
                     return "clientInfo." + error;
             }
         }
-        if (message.providerClientToken != null && message.hasOwnProperty("providerClientToken"))
-            if (!(message.providerClientToken && typeof message.providerClientToken.length === "number" || $util.isString(message.providerClientToken)))
-                return "providerClientToken: buffer expected";
+        if (message.providerSpotifyClientToken != null && message.hasOwnProperty("providerSpotifyClientToken"))
+            if (!(message.providerSpotifyClientToken && typeof message.providerSpotifyClientToken.length === "number" || $util.isString(message.providerSpotifyClientToken)))
+                return "providerSpotifyClientToken: buffer expected";
         if (message.licenseCounter != null && message.hasOwnProperty("licenseCounter"))
             if (!$util.isInteger(message.licenseCounter))
                 return "licenseCounter: integer expected";
@@ -7244,11 +7244,11 @@ export const ClientIdentification = $root.ClientIdentification = (() => {
                 message.clientInfo[i] = $root.ClientIdentification.NameValue.fromObject(object.clientInfo[i]);
             }
         }
-        if (object.providerClientToken != null)
-            if (typeof object.providerClientToken === "string")
-                $util.base64.decode(object.providerClientToken, message.providerClientToken = $util.newBuffer($util.base64.length(object.providerClientToken)), 0);
-            else if (object.providerClientToken.length >= 0)
-                message.providerClientToken = object.providerClientToken;
+        if (object.providerSpotifyClientToken != null)
+            if (typeof object.providerSpotifyClientToken === "string")
+                $util.base64.decode(object.providerSpotifyClientToken, message.providerSpotifyClientToken = $util.newBuffer($util.base64.length(object.providerSpotifyClientToken)), 0);
+            else if (object.providerSpotifyClientToken.length >= 0)
+                message.providerSpotifyClientToken = object.providerSpotifyClientToken;
         if (object.licenseCounter != null)
             message.licenseCounter = object.licenseCounter >>> 0;
         if (object.clientCapabilities != null) {
@@ -7301,11 +7301,11 @@ export const ClientIdentification = $root.ClientIdentification = (() => {
                     object.token = $util.newBuffer(object.token);
             }
             if (options.bytes === String)
-                object.providerClientToken = "";
+                object.providerSpotifyClientToken = "";
             else {
-                object.providerClientToken = [];
+                object.providerSpotifyClientToken = [];
                 if (options.bytes !== Array)
-                    object.providerClientToken = $util.newBuffer(object.providerClientToken);
+                    object.providerSpotifyClientToken = $util.newBuffer(object.providerSpotifyClientToken);
             }
             object.licenseCounter = 0;
             object.clientCapabilities = null;
@@ -7326,8 +7326,8 @@ export const ClientIdentification = $root.ClientIdentification = (() => {
             for (let j = 0; j < message.clientInfo.length; ++j)
                 object.clientInfo[j] = $root.ClientIdentification.NameValue.toObject(message.clientInfo[j], options);
         }
-        if (message.providerClientToken != null && message.hasOwnProperty("providerClientToken"))
-            object.providerClientToken = options.bytes === String ? $util.base64.encode(message.providerClientToken, 0, message.providerClientToken.length) : options.bytes === Array ? Array.prototype.slice.call(message.providerClientToken) : message.providerClientToken;
+        if (message.providerSpotifyClientToken != null && message.hasOwnProperty("providerSpotifyClientToken"))
+            object.providerSpotifyClientToken = options.bytes === String ? $util.base64.encode(message.providerSpotifyClientToken, 0, message.providerSpotifyClientToken.length) : options.bytes === Array ? Array.prototype.slice.call(message.providerSpotifyClientToken) : message.providerSpotifyClientToken;
         if (message.licenseCounter != null && message.hasOwnProperty("licenseCounter"))
             object.licenseCounter = message.licenseCounter;
         if (message.clientCapabilities != null && message.hasOwnProperty("clientCapabilities"))

@@ -1,12 +1,13 @@
 import { dumbahhSpotifyTotp } from "../stuff/dumbahhSpotifyTotp";
+import { fetchRetry } from "../stuff/fetchRetry";
 import { maybeThrow, orThrow } from "../stuff/maybeThrow";
-import { AccessToken } from "../types/AccessToken";
-import { ClientTokenGrantedResponse } from "../types/ClientTokenGrantedResponse";
+import { SpotifyAccessToken } from "../types/SpotifyAccessToken";
+import { SpotifyClientTokenGrantedResponse } from "../types/SpotifyClientTokenGrantedResponse";
 import { getServerTime } from "./serverTime";
 
 
 export async function getClientToken() {
-    return fetch("https://clienttoken.spotify.com/v1/clienttoken", {
+    return fetchRetry("https://clienttoken.spotify.com/v1/clienttoken", {
         method: "POST",
 
         body: JSON.stringify({
@@ -30,5 +31,5 @@ export async function getClientToken() {
 
     }).then(maybeThrow)
     .then(r=>r.json())
-    .then(orThrow<ClientTokenGrantedResponse>)
+    .then(orThrow<SpotifyClientTokenGrantedResponse>)
 }

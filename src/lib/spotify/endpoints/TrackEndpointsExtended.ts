@@ -2,14 +2,14 @@
 import type { SpotifyApi, SpotifyFormats } from "../spotify";
 import { getCredits } from "../applicationEndpoints/getCredits";
 import { getMetadata } from "../applicationEndpoints/getMetadata";
-import { CdnFile } from "../types/CdnFile";
-import { DownloadOptions } from "./CdnEndpoints";
+import { SpotifyCdnFile } from "../types/SpotifyCdnFile";
+import CdnEndpoints, { DownloadOptions } from "./CdnEndpoints";
 import TracksEndpoints from "./TracksEndpoints";
 import { Readable } from "stream";
-import { Lyrics } from "../types/Lyrics";
+import { SpotifyLyrics } from "../types/SpotifyLyrics";
 
-import { endpoints } from "..";
-import { PathfinderClient } from "../types/PathfinderClient";
+import { PathfinderClient } from "../types/Pathfinder/PathfinderClient";
+import UsersEndpoints from "./UsersEndpoints";
 
 
 export type TrackDownloadOptions = DownloadOptions & {
@@ -37,10 +37,10 @@ type ApiWithUsersMeAndCdn = unknown & unknown & {
         ensureClientToken: typeof SpotifyApi.prototype.ensureClientToken,
         me: typeof SpotifyApi.prototype.me,
         cdn: {
-            fetch: typeof endpoints.CdnEndpoints.prototype.fetch
+            fetch: typeof CdnEndpoints.prototype.fetch
         },
         users: {
-            profile: typeof endpoints.UsersEndpoints.prototype.profile
+            profile: typeof UsersEndpoints.prototype.profile
         }
 
 } & PathfinderClient
@@ -53,6 +53,7 @@ export class TrackEndpointsExtended extends TracksEndpoints {
 
     constructor(api: ApiWithUsersMeAndCdn, isThereAUnplayplay: boolean) {
         super(api);
+        this.api = api;
         this.isThereAUnplayplay = isThereAUnplayplay;
     }
 
@@ -61,14 +62,13 @@ export class TrackEndpointsExtended extends TracksEndpoints {
     }
 
     public async metadata(trackId: string) {
-        this.api.ensureAuth();
         return getMetadata(this, "track", trackId);
     }
 
     public async lyrics(trackId: string, picture?: string){
         if (!picture) picture = await this.get(trackId).then(e=>e.album.images[0].url);
 
-        return this.api.makeRequest<Lyrics>(
+        return this.api.makeRequest<SpotifyLyrics>(
             "GET", 
             `https://spclient.wg.spotify.com/color-lyrics/v2/track/${trackId}/image/${encodeURIComponent(picture)}?format=json&vocalRemoval=false&market=from_token`,
             undefined, undefined, true
@@ -103,7 +103,7 @@ export class TrackEndpointsExtended extends TracksEndpoints {
         if (typeof targetPathOrOptions === "object") o = targetPathOrOptions;
         if (ouch) o = ouch;
 
-        let file: CdnFile = undefined;
+        let file: SpotifyCdnFile = undefined;
         if (o?.preferredFormat){
             file = metadata.file.find(e=>e.format == o.preferredFormat);
             if (!file && o.formatUnavailable == "throw") throw new Error(`${o.preferredFormat} is not available for this track`);

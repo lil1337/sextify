@@ -152,8 +152,8 @@ export class License implements ILicense {
     /** License remoteAttestationVerified. */
     public remoteAttestationVerified: boolean;
 
-    /** License providerClientToken. */
-    public providerClientToken: Uint8Array;
+    /** License providerSpotifyClientToken. */
+    public providerSpotifyClientToken: Uint8Array;
 
     /** License protectionScheme. */
     public protectionScheme: number;
@@ -2263,8 +2263,8 @@ export class ClientIdentification implements IClientIdentification {
     /** ClientIdentification clientInfo. */
     public clientInfo: ClientIdentification.INameValue[];
 
-    /** ClientIdentification providerClientToken. */
-    public providerClientToken: Uint8Array;
+    /** ClientIdentification providerSpotifyClientToken. */
+    public providerSpotifyClientToken: Uint8Array;
 
     /** ClientIdentification licenseCounter. */
     public licenseCounter: number;

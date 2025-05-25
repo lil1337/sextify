@@ -1,6 +1,6 @@
 import { ID3Metadata } from "./types/ID3Metadata";
 
-export function ffmpegId3MetadataArgs(metadata: ID3Metadata & {coverPath?: string}){
+export function ffmpegId3MetadataArgs(metadata: ID3Metadata & { coverPath?: string }) {
     let args = ["-id3v2_version", "3"];
     if (metadata.title) args.push("-metadata", `title=${metadata.title}`);
     if (metadata.subtitle) args.push("-metadata", `TIT3=${metadata.subtitle}`);
@@ -25,10 +25,10 @@ export function ffmpegId3MetadataArgs(metadata: ID3Metadata & {coverPath?: strin
     return args;
 }
 
-export function ffmpegId3CoverArgs(coverPath: string){
+export function ffmpegId3CoverArgs(coverPath: string) {
     return [
         "-metadata:s:v", "title=\"Album cover\"",
         "-metadata:s:v", "comment=\"Cover (front)\"",
-        
+        "-disposition:1", "attached_pic"
     ]
 }

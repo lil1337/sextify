@@ -1,4 +1,4 @@
-export type Credits = {
+export type SpotifyCredits = {
     trackUri: string;
     trackTitle: string;
     roleCredits: {
@@ -11,6 +11,6 @@ export type Credits = {
             weight: number;
         }[];
     }[];
-    extendedCredits: any[];
+    extendedSpotifyCredits: any[];
     sourceNames: string[];
 };

@@ -1,24 +1,24 @@
-export type LyricLine = {
+export type SpotifyLyricLine = {
     startTimeMs: string;
     words: string;
     syllables: string[];
     endTimeMs: string;
 };
 
-export type Lyrics = {
+export type SpotifyLyrics = {
     lyrics: {
         syncType: string;
-        lines: LyricLine[];
+        lines: SpotifyLyricLine[];
         provider: string;
-        providerLyricsId: string;
+        providerSpotifyLyricsId: string;
         providerDisplayName: string;
-        syncLyricsUri: string;
+        syncSpotifyLyricsUri: string;
         isDenseTypeface: boolean;
         alternatives: any[];
         language: string;
         isRtlLanguage: boolean;
         capStatus: string;
-        previewLines: LyricLine[];
+        previewLines: SpotifyLyricLine[];
     };
     colors: {
         background: number;

@@ -1,4 +1,4 @@
-import { CdnFile } from "./CdnFile";
+import { SpotifyCdnFile } from "./SpotifyCdnFile";
 
 export type TrackMetadata = {
     gid: string;
@@ -40,7 +40,7 @@ export type TrackMetadata = {
         type: string;
         id: string;
     }[];
-    file: CdnFile[];
+    file: SpotifyCdnFile[];
     preview: {
         file_id: string;
         format: 'MP3_96';

@@ -1,11 +1,8 @@
-import { SpotifyError } from "lib/errors";
-import { getAccessToken } from "../applicationEndpoints/getAccessToken";
-import { AccessToken } from "../types/AccessToken";
 import { AuthenticatedRequestInit } from "../types/AuthenticatedRequestInit";
-import { ClientToken } from "../types/ClientToken";
+import { SpotifyClientToken } from "../types/SpotifyClientToken";
 import { getClientToken } from "../applicationEndpoints/getClientToken";
 
-export async function ensureClientToken(init: AuthenticatedRequestInit, token?: ClientToken): Promise<{r: AuthenticatedRequestInit, token?: ClientToken}>{
+export async function ensureClientToken(init: AuthenticatedRequestInit, token?: SpotifyClientToken): Promise<{r: AuthenticatedRequestInit, token?: SpotifyClientToken}>{
     let r: RequestInit = {...init,  headers: {
         ...init.headers,
         "client-token": token?.token,

@@ -719,7 +719,7 @@ message WidevinePsshData {
   // Content provider name.
   optional string provider = 3 [deprecated = true];
 
-  // Track type. Acceptable values are SD, HD and AUDIO. Used to
+  // SpotifyTrack type. Acceptable values are SD, HD and AUDIO. Used to
   // differentiate content keys used by an asset.
   optional string track_type = 5 [deprecated = true];
 

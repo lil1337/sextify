@@ -1,6 +1,6 @@
 
 import type {
-    Artist,
+    SpotifyArtist,
     Artists,
     Market,
     MaxInt,
@@ -11,11 +11,11 @@ import type {
 import EndpointsBase from "./EndpointsBase";
 
 export default class ArtistsEndpoints extends EndpointsBase {
-    public async get(id: string): Promise<Artist>;
-    public async get(ids: string[]): Promise<Artist[]>;
+    public async get(id: string): Promise<SpotifyArtist>;
+    public async get(ids: string[]): Promise<SpotifyArtist[]>;
     public async get(idOrIds: string | string[]) {
         if (typeof idOrIds === "string") {
-            const artist = this.getRequest<Artist>(`artists/${idOrIds}`);
+            const artist = this.getRequest<SpotifyArtist>(`artists/${idOrIds}`);
             return artist;
         }
 

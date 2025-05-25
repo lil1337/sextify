@@ -1,4 +1,4 @@
-export type AccessToken = {  
+export type SpotifyAccessToken = {  
     clientId: string,
     accessToken: string,
     accessTokenExpirationTimestampMs: number,

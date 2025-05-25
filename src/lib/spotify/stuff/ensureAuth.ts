@@ -1,16 +1,16 @@
 import { SpotifyError } from "lib/errors";
 import { getAccessToken } from "../applicationEndpoints/getAccessToken";
-import { AccessToken } from "../types/AccessToken";
+import { SpotifyAccessToken } from "../types/SpotifyAccessToken";
 import { AuthenticatedRequestInit } from "../types/AuthenticatedRequestInit";
 import { sessionHeaders } from "./headers";
 
-export async function ensureAuth(o: {cookies?: string, token?: Partial<AccessToken> & {accessToken: string}}): Promise<{r: AuthenticatedRequestInit, token?: AccessToken}>{
+export async function ensureAuth(o: {cookies?: string, token?: Partial<SpotifyAccessToken> & {accessToken: string}}): Promise<{r: AuthenticatedRequestInit, token?: SpotifyAccessToken}>{
     let r: RequestInit = { headers: {
         ...sessionHeaders, 
         "cookie": o.cookies, 
     } };
 
-    let newToken: AccessToken = undefined;
+    let newToken: SpotifyAccessToken = undefined;
     if (o.cookies){
         if (!o.token || (o.token?.accessTokenExpirationTimestampMs && o.token?.accessTokenExpirationTimestampMs < Date.now())){
             newToken = await getAccessToken(r);

@@ -1,5 +1,3 @@
-// spotifyDesktopSearchTypes.ts
-
 export type ImageSourceDesktopSearch = {
     height: number | null;
     url: string;
@@ -22,7 +20,7 @@ export type AlbumArtistDesktopSearch = {
 };
 
 export type AlbumDesktopSearch = {
-    __typename: "Album";
+    __typename: "SpotifyAlbum";
     name: string;
     type: string;
     uri: string;
@@ -39,7 +37,7 @@ export type AlbumResponseWrapperDesktopSearch = {
 
 // Artists
 export type ArtistDesktopSearch = {
-    __typename: "Artist";
+    __typename: "SpotifyArtist";
     profile: { name: string; verified: boolean };
     uri: string;
     visuals: {
@@ -170,7 +168,7 @@ export type TrackArtistDesktopSearch = {
 };
 
 export type TrackDesktopSearch = {
-    __typename: "Track";
+    __typename: "SpotifyTrack";
     id: string;
     name: string;
     uri: string;

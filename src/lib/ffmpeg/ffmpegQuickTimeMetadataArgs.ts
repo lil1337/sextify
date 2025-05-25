@@ -25,6 +25,6 @@ export function ffmpegQuickTimeMetadataArgs(metadata: QuickTimeMetadata & {cover
 
 export function ffmpegQuickTimeCoverArgs(coverPath: string){
     return [
-        "-disposition:1", "attached_pic", "-f:1", "jpeg"
+        "-disposition:1", "attached_pic"
     ]
 }

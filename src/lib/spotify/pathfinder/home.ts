@@ -1,8 +1,8 @@
 import { SpotifyPathfinderSearchQuery } from "../../../../out";
 import { SpotifySearchResponseDesktopSearch } from "../types/DesktopSearch";
 import { Home } from "../types/Home";
-import { PathfinderClient } from "../types/PathfinderClient";
-import { PathfinderHomeVariables } from "../types/PathfinderHomeVariables";
+import { PathfinderClient } from "../types/Pathfinder/PathfinderClient";
+import { PathfinderHomeVariables } from "../types/Pathfinder/PathfinderHomeVariables";
 
 export const home = (f: PathfinderClient, variables: PathfinderHomeVariables) => {
     if (typeof variables.facet !== "string") variables.facet = "";

@@ -1,6 +1,6 @@
 
 
-import { AccessToken } from "./types/AccessToken";
+import { SpotifyAccessToken } from "./types/SpotifyAccessToken";
 import { ensureAuth } from "./stuff/ensureAuth";
 
 import AlbumsEndpoints from "./endpoints/AlbumsEndpoints";
@@ -27,12 +27,14 @@ import { TrackEndpointsExtended } from "./endpoints/TrackEndpointsExtended";
 import CdnEndpoints from "./endpoints/CdnEndpoints";
 import { UnPlayplayLike } from "lib/playplay/types/UnPlayplayLike";
 import { User } from "./types/Spotify";
-import { PathfinderQuery } from "./types/PathfinderQuery";
+import { PathfinderQuery } from "./types/Pathfinder/PathfinderQuery";
 import { ensureClientToken } from "./pathfinder/ensureClientToken";
-import { PathfinderResponse } from "./types/PathfinderResponse";
-import { ClientToken } from "./types/ClientToken";
+import { PathfinderResponse } from "./types/Pathfinder/PathfinderResponse";
+import { SpotifyClientToken } from "./types/SpotifyClientToken";
 
-import { PathfinderClient } from "./types/PathfinderClient";
+import { PathfinderClient } from "./types/Pathfinder/PathfinderClient";
+import { SpotifyError } from "lib/errors";
+import { fetchRetry } from "./stuff/fetchRetry";
 
 export class SpotifyApi implements PathfinderClient {
 
@@ -61,8 +63,8 @@ export class SpotifyApi implements PathfinderClient {
     public currentUser: CurrentUserEndpoints;
 
     cookies: string;
-    token: Partial<AccessToken> & { accessToken: string };
-    clientToken: ClientToken;
+    token: Partial<SpotifyAccessToken> & { accessToken: string };
+    clientToken: SpotifyClientToken;
 
     me: User & {product: 'premium' | 'free' | 'open'};
 
@@ -71,8 +73,8 @@ export class SpotifyApi implements PathfinderClient {
 
     public static async withClientApplication(o?: {
         cookies?: string,
-        token?: Partial<AccessToken> & { accessToken: string },
-        clientToken?: ClientToken,
+        token?: Partial<SpotifyAccessToken> & { accessToken: string },
+        clientToken?: SpotifyClientToken,
         widevineDevice?: { privateKey: Buffer, clientId: Buffer },
         unplayplay?: UnPlayplayLike
     }) {
@@ -114,8 +116,8 @@ export class SpotifyApi implements PathfinderClient {
     public constructor(o?: {
         cookies?: string,
         
-        token?: Partial<AccessToken> & { accessToken: string },
-        clientToken?: ClientToken,
+        token?: Partial<SpotifyAccessToken> & { accessToken: string },
+        clientToken?: SpotifyClientToken,
 
         widevineDevice?: { privateKey: Buffer, clientId: Buffer }, 
         unplayplay?: UnPlayplayLike
@@ -158,9 +160,9 @@ export class SpotifyApi implements PathfinderClient {
 
     }
 
-    public async makeRequest<TReturnType>(method: "GET" | "POST" | "PUT" | "DELETE", url: string, body: any = undefined, contentType: string | undefined = undefined, withClientToken?: boolean): Promise<TReturnType> {
+    public async makeRequest<TReturnType>(method: "GET" | "POST" | "PUT" | "DELETE", url: string, body: any = undefined, contentType: string | undefined = undefined, withSpotifyClientToken?: boolean, theSameRateLimitedRequest?: boolean): Promise<TReturnType> {
 
-        let init = withClientToken ? await this.ensureClientToken() : await this.ensureAuth();
+        let init = withSpotifyClientToken ? await this.ensureClientToken() : await this.ensureAuth();
 
         const fullUrl = url.startsWith("https://") ? url : SpotifyApi.rootUrl + url;
         const opts: RequestInit = {
@@ -174,9 +176,17 @@ export class SpotifyApi implements PathfinderClient {
         };
 
 
-        const result = await fetch(fullUrl, opts).then(r=>{
+        const result = await fetchRetry(fullUrl, opts).then(r=>{
             return r;
         }).then(maybeThrow)
+
+        if (result.status == 429){
+            if (theSameRateLimitedRequest) throw new SpotifyError("Spotify would not shut the fuck up")
+            const retryAfter = Number(result.headers.get("Retry-After"));
+            console.error("[spotify] Rate limit reached, retrying in", result.headers.get("Retry-After"), "seconds");
+            await new Promise(resolve => setTimeout(resolve, (retryAfter + 0.5) * 1000));
+            return this.makeRequest(method, url, body, contentType, withSpotifyClientToken);
+        }
 
 
         if (result.status === 204) {
@@ -190,7 +200,7 @@ export class SpotifyApi implements PathfinderClient {
         let init = await this.ensureClientToken();
 
 
-        const result = await fetch("https://api-partner.spotify.com/pathfinder/v2/query", {
+        const result = await fetchRetry("https://api-partner.spotify.com/pathfinder/v2/query", {
             ...init, method: "POST", 
             body: JSON.stringify(query)
         });
