@@ -8,7 +8,7 @@ export async function getAccessToken(i: RequestInit) {
     let { serverTime } = await getServerTime(i);
 
 
-    return await fetchRetry("https://open.spotify.com/get_access_token?"+ new URLSearchParams(Object.entries({
+    return await fetchRetry("https://open.spotify.com/api/token?"+ new URLSearchParams(Object.entries({
         reason: "init",
         productType: "web-player",
         totp: dumbahhSpotifyTotp(1e3 * serverTime).toString(),
