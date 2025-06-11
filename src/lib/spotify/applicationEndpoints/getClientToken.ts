@@ -3,7 +3,6 @@ import { fetchRetry } from "../stuff/fetchRetry";
 import { maybeThrow, orThrow } from "../stuff/maybeThrow";
 import { SpotifyAccessToken } from "../types/SpotifyAccessToken";
 import { SpotifyClientTokenGrantedResponse } from "../types/SpotifyClientTokenGrantedResponse";
-import { getServerTime } from "./serverTime";
 
 
 export async function getClientToken() {

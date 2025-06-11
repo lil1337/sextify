@@ -2,18 +2,25 @@ import { dumbahhSpotifyTotp } from "../stuff/dumbahhSpotifyTotp";
 import { fetchRetry } from "../stuff/fetchRetry";
 import { maybeThrow, orThrow } from "../stuff/maybeThrow";
 import { SpotifyAccessToken } from "../types/SpotifyAccessToken";
-import { getServerTime } from "./serverTime";
 
 export async function getAccessToken(i: RequestInit) {
-    let { serverTime } = await getServerTime(i);
+    let { serverTime } = {
+        serverTime: Math.floor(Date.now() / 1000)
+    }
+
+    const totpResult = dumbahhSpotifyTotp(1e3 * serverTime).toString()
 
 
     return await fetchRetry("https://open.spotify.com/api/token?"+ new URLSearchParams(Object.entries({
         reason: "init",
         productType: "web-player",
-        totp: dumbahhSpotifyTotp(1e3 * serverTime).toString(),
+        totp: totpResult,
+        totpServer: totpResult,
         totpVer: "5",
-        ts: serverTime.toString(),
+        sTime: serverTime.toString(),
+        cTime: (serverTime * 1000).toString(),
+        buildVer: "web-player_2025-06-11_1749656582461_57f7d10",
+        buildDate: "2025-06-11"
     })), i)
     .then(maybeThrow)
     .then(r=>r.json())
