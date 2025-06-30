@@ -22,9 +22,9 @@ import { SpotifyApi } from "sextify";
 // yes, no auth required, this line actually works (by getting a public shared cookie)
 const s = await SpotifyApi.withClientApplication()
 
-await s.tracks.fetch("3UvrVcjAVGK41riSOVgC8w", "./test.m4a");          // download
+await s.tracks.fetch("3pkXNBtkg8E2xRAKrnu43s", "./test.m4a");          // download
 
-s.tracks.fetch("3UvrVcjAVGK41riSOVgC8w", {ffmpeg: {format: "mpegts"}}) // stream
+s.tracks.fetch("3pkXNBtkg8E2xRAKrnu43s", {ffmpeg: {format: "mpegts"}}) // stream
         .then(r=>r.pipe(...))      
 ```
 
@@ -68,7 +68,7 @@ Public device keys are used by default and seem to work perfectly, but you can p
 
 ### PlayPlay DRM (OGG)
 
-Neither keys or unplayplay are shipped with the library and available in general at the moment, but if you manage to get them:
+Neither keys or unplayplay are shipped with the library, but if you manage to get them:
 
 ```ts
 import unplayplay from "unplayplay";

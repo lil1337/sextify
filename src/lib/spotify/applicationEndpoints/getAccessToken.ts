@@ -11,16 +11,13 @@ export async function getAccessToken(i: RequestInit) {
     const totpResult = dumbahhSpotifyTotp(1e3 * serverTime).toString()
 
 
+
     return await fetchRetry("https://open.spotify.com/api/token?"+ new URLSearchParams(Object.entries({
         reason: "init",
         productType: "web-player",
         totp: totpResult,
         totpServer: totpResult,
-        totpVer: "5",
-        sTime: serverTime.toString(),
-        cTime: (serverTime * 1000).toString(),
-        buildVer: "web-player_2025-06-11_1749656582461_57f7d10",
-        buildDate: "2025-06-11"
+        totpVer: "8"
     })), i)
     .then(maybeThrow)
     .then(r=>r.json())

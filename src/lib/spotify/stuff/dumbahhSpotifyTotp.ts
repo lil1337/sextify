@@ -2,7 +2,19 @@ import * as crypto from 'crypto';
 
 
 export function dumbahhSpotifyTotp(timestamp: number): string {
-  const secret = Buffer.from('5507145853487499592248630329347', 'ascii'); // raw ASCII, not base32
+  const secretSauce = [
+    37, 84, 32, 76, 87, 90, 87, 47, 13, 75, 48, 54, 44, 28, 19, 21, 22,
+  ]
+    .map((n, i) => n ^ ((i % 33) + 9))
+    .map((n) => n.toString())
+    .join("");
+
+  const secretBytes: string[] = [];
+  Buffer.from(secretSauce, "utf8")
+    .forEach((n) => secretBytes.push(n.toString(16)));
+
+  const secret = Buffer.from(secretBytes.join(""), "hex")
+
   const period = 30;
   const digits = 6;
 
