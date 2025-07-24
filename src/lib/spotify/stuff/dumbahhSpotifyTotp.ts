@@ -2,9 +2,7 @@ import * as crypto from 'crypto';
 
 
 export function dumbahhSpotifyTotp(timestamp: number): string {
-  const secretSauce = [
-    37, 84, 32, 76, 87, 90, 87, 47, 13, 75, 48, 54, 44, 28, 19, 21, 22,
-  ]
+  const secretSauce = new Uint8Array(Buffer.from("co/X18vA4C2hue7^_K^1E$U@J<", "ascii"))
     .map((n, i) => n ^ ((i % 33) + 9))
     .map((n) => n.toString())
     .join("");

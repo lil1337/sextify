@@ -10,7 +10,7 @@ export async function ensureClientToken(init: AuthenticatedRequestInit, token?: 
     } };
 
     
-    if (!token || (token?.refresh_after_seconds && token?.refresh_after_seconds < Date.now()))
+    if (!token || (token?.refresh_after_seconds && (token?.refresh_after_seconds - 120) < Date.now()))
         token = (await getClientToken()).granted_token;
     
 

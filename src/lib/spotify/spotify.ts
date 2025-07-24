@@ -90,7 +90,7 @@ export class SpotifyApi implements PathfinderClient {
 
         await api.ensureAuth();
 
-        if (!api.me) api.me = await api.users.profile();
+        //if (!api.me) api.me = await api.users.profile();
 
         return api;
     }
